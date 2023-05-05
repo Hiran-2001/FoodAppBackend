@@ -17,7 +17,7 @@ app.use(cookieParser())
 app.use(cors())
 app.use('/', foodRoute)
 app.use('/', userRoute)
-app.get('/',(req,res)=>{
+app.get('/user',(req,res)=>{
     res.send("helllo")
 })
 app.use("/uploads", express.static("./uploads"))
