@@ -1,7 +1,7 @@
 const userModel = require("../model/userSchema");
 const bcrypt = require("bcryptjs");
-
-                                                                     // register a user
+const cloudinary = require("../utils/cloudinary")
+// register a user
 
 
 
@@ -42,7 +42,7 @@ exports.createUser = async (req, res) => {
   }
 };
 
-                                                                       // get all user data
+// get all user data
 
 
 exports.getAllUser = async (req, res) => {
@@ -66,7 +66,7 @@ exports.getSingleUser = async (req, res) => {
   });
 };
 
-                                                               // user login api
+// user login api
 
 
 exports.loginUser = async (req, res) => {
@@ -97,29 +97,29 @@ exports.loginUser = async (req, res) => {
         httpOnly: true,
       });
       const result = { userLogin, token };
-      res.status(201).json({status:201,token});
+      res.status(201).json({ status: 201, token });
     }
   } else {
     res.send("invalid email");
   }
 };
 
-                                                                    //update user
+//update user
 
 exports.updateUser = async (req, res) => {
   const id = req.params.id;
- 
+
   const user = await userModel.findByIdAndUpdate(id, req.body, {
     new: true,
   });
   if (!user) {
     res.send("no user to update");
   }
-  res.status(201).json({status:201,user});
+  res.status(201).json({ status: 201, user });
   user.save();
 };
 
-                                                                       //delete user
+//delete user
 
 exports.deleteUser = async (req, res) => {
   const id = req.params.id;
@@ -131,99 +131,68 @@ exports.deleteUser = async (req, res) => {
 };
 
 
-                                                                    //validating user
+//validating user
 
-exports.validateUser = async(req,res)=>{
+exports.validateUser = async (req, res) => {
 
-try {
-   const validateUser = await userModel.findOne({_id:req.userId})  
-   res.status(201).json({status:201,validateUser})
-}  catch (error) {
-  res.send("no token provided")
-}
-}
-
-
-                                                                         //logout user
-
-exports.logoutUser = async(req,res)=>{
   try {
-    req.user.tokens  = req.user.tokens.filter((ctoken)=>{
-      console.log(ctoken !== req.userToken); 
-    });
-  res.clearCookie('usercookie',{ path:"/"});
-  res.user.save()
-    res.status(201).json({status:201})
+    const validateUser = await userModel.findOne({ _id: req.userId })
+    res.status(201).json({ status: 201, validateUser })
   } catch (error) {
-    res.status(201).json({status:201,error})
+    res.send("no token provided")
+  }
+}
+
+
+//logout user
+
+exports.logoutUser = async (req, res) => {
+  try {
+    req.user.tokens = req.user.tokens.filter((ctoken) => {
+      console.log(ctoken !== req.userToken);
+    });
+    res.clearCookie('usercookie', { path: "/" });
+    res.user.save()
+    res.status(201).json({ status: 201 })
+  } catch (error) {
+    res.status(201).json({ status: 201, error })
   }
 }
 
 
 
-                                                                        //image upload
+//image upload
 
 
-exports.uploadImage = async(req,res)=>{
-  const id = req.params.id;
+exports.uploadImage = async (req, res) => {
+  
+  const id = req.params.id
+  const {image}= req.body;
 
-  const name = req.file.path;
+  try {
+    if(image){
+    const uploadRes = await cloudinary.uploader.upload(image,{
+      upload_preset: "foodApp"
+     })
 
+     if(uploadRes){
+      const user = await userModel.findByIdAndUpdate(id,{userImage:uploadRes},{
+        new:true
+      })
 
-  if(!name){
-      res.status(401).json({status:401,message:"please select image"})
-  }
+      const savedUser = await user.save()
 
-  try { 
-      
-        
-    const user = await userModel.findByIdAndUpdate(id, {userImage:name}, {
-      new: true,
-    });
-    if (!user) {
-      res.send("no user to update");
+      res.status(200).send(savedUser)
+     }
     }
-
-      const finaldata = await user.save();
-
-      res.status(201).json({status:201,finaldata});
-
   } catch (error) {
-      res.status(401).json({status:401,error})
+    console.log(error);
+    res.status(500).send(error)
   }
-
-  console.log(name);
-
-}  
   
-  
-//   res.status(201).json({status:201,user});
-//   user.save();
-//   console.log(req.file);
-// };
 
-//    const uploadImg = {file:req.body.image}
-  
-//     if(!uploadImg){
-//       res.status(401).json({status:401,message:"fill the field"})
-//     }
-    
-//     try {
+}
 
-//       const {userImage} = req.file
-//       const userData = await userModel.findByIdAndUpdate(id, userImage,{
-//         new:true,
-//       })
-//       if (!userData) {
-//             res.send("no user to update");
-//           }
 
-//       const saveData = await userData.save()
 
-//       res.status(201).json({status:201,saveData})
-//     } catch (error) {
-//       res.status(401).json({status:401,error})
-//     }
-
-// }
 
