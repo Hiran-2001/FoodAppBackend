@@ -19,7 +19,7 @@ app.use(cookieParser())
 app.use(bodyParser.json({limit: '50mb'}));
 app.use(cors())
 app.use('/api/', foodRoute)
-app.use('/api', userRoute)
+app.use('/api/', userRoute)
 app.get('/user',(req,res)=>{
     res.send("helllo")
 })

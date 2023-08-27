@@ -29,9 +29,9 @@ const userSchema = mongoose.Schema({
     userImage: {
         type: Object,
     },
-    role: {
-        type: String,
-        default: "user"
+    isAdmin: {
+        type: Boolean,
+        default: false
     },
     Tokens: [{
         token: {
