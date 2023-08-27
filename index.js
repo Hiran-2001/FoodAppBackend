@@ -18,8 +18,8 @@ app.use(express.urlencoded({limit: '25mb'}));
 app.use(cookieParser())
 app.use(bodyParser.json({limit: '50mb'}));
 app.use(cors())
-app.use('/', foodRoute)
-app.use('/', userRoute)
+app.use('/api/', foodRoute)
+app.use('/api', userRoute)
 app.get('/user',(req,res)=>{
     res.send("helllo")
 })

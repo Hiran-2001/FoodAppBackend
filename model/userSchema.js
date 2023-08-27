@@ -3,38 +3,42 @@ const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
 // const keysecret = process.env.JWT_SECRET_KEY
 const userSchema = mongoose.Schema({
-    name:{
-        type:String,
-        required:true,
+    name: {
+        type: String,
+        required: true,
     },
-    email:{
-        type:String,
-        required:true,
-        unique:true
+    email: {
+        type: String,
+        required: true,
+        unique: true
     },
-    password:{
-        type:String,
-        required:true,
+    password: {
+        type: String,
+        required: true,
     },
-    confirmPassword:{
-        type:String,
-        required:true,
+    confirmPassword: {
+        type: String,
+        required: true,
     }
-    ,phoneNumber:{
-        type:Number,
+    , phoneNumber: {
+        type: Number,
     },
-    address:{
-        type:String,
+    address: {
+        type: String,
     },
-    userImage:{
-    type:Object,
+    userImage: {
+        type: Object,
     },
-    Tokens:[{
-        token:{
-            type:String,
-            required:true
+    role: {
+        type: String,
+        default: "user"
+    },
+    Tokens: [{
+        token: {
+            type: String,
+            required: true
         }
-        
+
     }]
 
 })
@@ -42,30 +46,30 @@ const userSchema = mongoose.Schema({
 
 // password hashing
 
-userSchema.pre("save",async function(next){
+userSchema.pre("save", async function (next) {
     if (this.isModified("password")) {
-        
-        this.password = await bcrypt.hash(this.password,12)
-        this.confirmPassword = await bcrypt.hash(this.confirmPassword,12)
+
+        this.password = await bcrypt.hash(this.password, 12)
+        this.confirmPassword = await bcrypt.hash(this.confirmPassword, 12)
     }
-  next()
+    next()
 })
 
 
 // jwt token generation
 
-userSchema.methods.generateAuthToken =  async function () {
+userSchema.methods.generateAuthToken = async function () {
     try {
-        let token = jwt.sign({_id: this._id}, process.env.JWT_SECRET_KEY,{
-            expiresIn:"1h"
+        let token = jwt.sign({ _id: this._id }, process.env.JWT_SECRET_KEY, {
+            expiresIn: "1h"
         })
-        this.Tokens = this.Tokens.concat({token: token});
-       await this.save()
-       return token
+        this.Tokens = this.Tokens.concat({ token: token });
+        await this.save()
+        return token
     } catch (error) {
         console.log(error);
     }
-  }
+}
 
 module.exports = mongoose.model("userData", userSchema)
 
